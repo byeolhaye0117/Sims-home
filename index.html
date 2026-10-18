@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Sims Design Studio — 3D Builder</title>
+<style>
+:root{--blue:#3479f6;--ink:#28312d;--muted:#77817a;--line:#dfe5e0;--panel:#fffffff0}
+*{box-sizing:border-box}body{margin:0;background:#edf1ed;color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+header{height:58px;display:flex;align-items:center;gap:10px;padding:0 13px;background:#ffffffed;border-bottom:1px solid var(--line);position:relative;z-index:5}
+.logo{width:34px;height:34px;border-radius:11px;background:#688775;color:#fff;font-weight:900;display:grid;place-items:center;font-size:11px}.brand{font-weight:850;font-size:13px}.sub{font-size:10px;color:var(--muted);margin-top:2px}.tabs{display:flex;gap:5px;margin-left:12px}.tab{border:0;border-radius:10px;padding:9px 13px;background:#f0f3f0;color:#4c5750;font-weight:750;cursor:pointer}.tab.active{background:var(--blue);color:#fff}.topright{margin-left:auto;display:flex;gap:5px}.topright button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 10px;font-weight:700;cursor:pointer}
+main{height:calc(100dvh - 58px);display:grid;grid-template-columns:92px minmax(0,1fr) 205px;grid-template-rows:minmax(0,1fr) 116px;gap:9px;padding:9px}
+.tools,.right,.catalog{background:var(--panel);border:1px solid #dfe5e0;border-radius:14px;box-shadow:0 7px 24px #25372a0b;backdrop-filter:blur(12px)}
+.tools{padding:7px;display:flex;flex-direction:column;gap:5px;overflow:auto}.tool{min-height:56px;border:1px solid transparent;border-radius:10px;background:#f6f8f6;color:#3b4540;font-weight:750;font-size:10px;cursor:pointer}.tool span{display:block;font-size:21px;margin-bottom:2px}.tool.active{background:#edf4ff;border-color:#85adff;color:#1559c5}
+#viewport{position:relative;border-radius:14px;overflow:hidden;background:linear-gradient(#cce0e4,#e9efdc);min-width:0;min-height:0}#game{width:100%;height:100%;display:block;touch-action:none}.hud{position:absolute;z-index:2;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;gap:7px;pointer-events:none}.glass{background:#fffffff0;border:1px solid white;border-radius:10px;padding:8px 10px;box-shadow:0 3px 12px #23352612}.glass strong{font-size:11px}.glass small{display:block;font-size:10px;color:var(--muted);margin-top:2px}.hint{position:absolute;left:10px;bottom:10px;background:#fffffff0;border:1px solid white;border-radius:10px;padding:8px 10px;font-size:10px;max-width:85%;pointer-events:none}.toast{position:absolute;top:58px;left:50%;transform:translateX(-50%);background:#26332ce8;color:white;padding:8px 12px;border-radius:10px;font-size:11px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:3}.toast.show{opacity:1}
+.right{padding:11px;overflow:auto}.section{font-size:10px;font-weight:850;letter-spacing:.06em;color:#77817a;margin:4px 0 8px}.preview{height:85px;border-radius:10px;background:linear-gradient(140deg,#c7dfc8,#e5e8d9);display:grid;place-items:center;font-size:45px}.name{font-size:12px;font-weight:800;margin-top:8px}.meta{font-size:10px;line-height:1.5;color:var(--muted);margin-top:3px}.btn{width:100%;border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px;margin-top:6px;font-weight:750;font-size:10px;cursor:pointer}.btn.primary{background:#eaf2ff;border-color:#b8d0ff}.btn.danger{color:#a14b42}.colors{display:flex;gap:6px;flex-wrap:wrap}.sw{width:23px;height:23px;border-radius:7px;border:1px solid #cbd3cc;cursor:pointer}
+.catalog{grid-column:2/4;padding:9px 11px;min-width:0;overflow:hidden}.cathead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.cathead strong{font-size:11px}.cathead small{font-size:10px;color:var(--muted)}.items{display:flex;gap:7px;overflow-x:auto;padding:1px 1px 4px}.item{flex:0 0 72px;border:1px solid var(--line);border-radius:9px;background:#fafbfa;padding:5px 3px;cursor:pointer;text-align:center}.item.active{border:2px solid var(--blue);background:#eef5ff;padding:4px 2px}.item span{display:block;font-size:23px;height:31px}.item b{font-size:10px;white-space:nowrap}
+@media(max-width:800px){header{height:53px;padding:0 7px;gap:6px}.logo{width:29px;height:29px}.brand{font-size:11px}.sub{display:none}.tabs{margin-left:2px;gap:3px}.tab{padding:8px 8px;font-size:10px}.topright button{padding:7px}.topright .optional{display:none}main{height:calc(100dvh - 53px);grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto 100px;gap:6px;padding:6px}.tools{grid-row:2;flex-direction:row;overflow-x:auto;overflow-y:hidden;padding:5px}.tool{min-width:55px;min-height:49px;flex:1;font-size:9px}.tool span{font-size:18px}.right{display:none}.catalog{grid-column:1;grid-row:3;padding:7px 9px}.cathead small{display:none}.hint{font-size:9px} }
+</style>
+</head>
+<body>
+<header>
+<div class="logo">SDS</div><div><div class="brand">Sims Design Studio</div><div class="sub">실시간 3D 건축 프로토타입 · SDS-3D-001</div></div>
+<nav class="tabs"><button class="tab active" data-mode="build">⌂ 건축</button><button class="tab" data-mode="decorate">▣ 꾸미기</button><button class="tab" data-mode="life">♙ 생활</button></nav>
+<div class="topright"><button id="rotateCam" title="카메라 회전">⟳ 시점</button><button id="undo">↶</button><button id="redo">↷</button></div>
+</header>
+<main>
+<aside class="tools" id="tools">
+<button class="tool active" data-tool="wall"><span>🧱</span>벽</button>
+<button class="tool" data-tool="window"><span>🪟</span>창문</button>
+<button class="tool" data-tool="door"><span>🚪</span>문</button>
+<button class="tool" data-tool="floor"><span>▦</span>바닥</button>
+<button class="tool" data-tool="roof"><span>🏠</span>지붕</button>
+<button class="tool" data-tool="sofa"><span>🛋️</span>소파</button>
+<button class="tool" data-tool="bed"><span>🛏️</span>침대</button>
+<button class="tool" data-tool="plant"><span>🪴</span>식물</button>
+<button class="tool" data-tool="erase"><span>⌫</span>삭제</button>
+</aside>
+<section id="viewport">
+<canvas id="game"></canvas>
+<div class="hud"><div class="glass"><strong>새 부지 · My House 01</strong><small id="modeLabel">빈 부지 · 건축 모드</small></div><div class="glass"><strong id="count">오브젝트 0개</strong><small id="engineState">3D 장면 준비 중</small></div></div>
+<div class="toast" id="toast"></div><div class="hint" id="hint">빈 부지에서 시작합니다. 바닥을 눌러 벽과 바닥을 직접 만드세요 · 드래그: 시점 회전</div>
+</section>
+<aside class="right"><div class="section">내 부지</div><div class="preview">🏡</div><div class="name">My House 01</div><div class="meta">실시간 3D 건축<br>벽과 가구는 실제 3D 오브젝트입니다.</div>
+<button class="btn primary" id="save">▣ 건축 저장</button><button class="btn" id="load">▱ 불러오기</button><button class="btn danger" id="clear">초기화</button><input type="file" id="file" accept=".json,application/json" hidden>
+<div style="height:1px;background:#e7ebe7;margin:12px 0"></div><div class="section">재질 색상</div><div class="colors">
+<button class="sw" data-color="#f1eadf" style="background:#f1eadf"></button><button class="sw" data-color="#c9d9ce" style="background:#c9d9ce"></button><button class="sw" data-color="#d2dce8" style="background:#d2dce8"></button><button class="sw" data-color="#c89e7b" style="background:#c89e7b"></button><button class="sw" data-color="#858b83" style="background:#858b83"></button><button class="sw" data-color="#e0c7d5" style="background:#e0c7d5"></button></div>
+<div class="meta">색상을 선택한 뒤 새 부품을 놓으면 적용됩니다.</div>
+</aside>
+<section class="catalog"><div class="cathead"><strong id="catalogTitle">건축 카탈로그</strong><small>항목 선택 → 3D 바닥 클릭 → 실제 오브젝트 배치</small></div><div class="items" id="catalog"></div></section>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const THREE = window.THREE;
+if (!THREE) {
+  const viewport = document.querySelector('#viewport');
+  viewport.innerHTML = '<div style="height:100%;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;color:#26332c;background:#e8efe8;font:600 15px system-ui;line-height:1.7"><div><div style="font-size:42px">⚠️</div><strong>3D 엔진을 불러오지 못했습니다.</strong><br><span style="font-size:12px;font-weight:400">인터넷 연결을 확인하고 Chrome에서 다시 열어 주세요. 외부 라이브러리 접근이 차단된 브라우저에서는 실행되지 않을 수 있습니다.</span></div></div>';
+  throw new Error('Three.js CDN failed to load');
+}
+
+const canvas=document.querySelector('#game'), viewport=document.querySelector('#viewport');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=0.78;
+renderer.setClearColor(0xbfd2d8,1);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xbfd2d8);scene.fog=new THREE.Fog(0xbfd2d8,28,60);
+const camera=new THREE.PerspectiveCamera(38,1,.1,100);let target=new THREE.Vector3(0,0.65,0),radius=20,azimuth=Math.PI/4,elevation=1.02;
+function updateCamera(){camera.position.set(target.x+radius*Math.cos(elevation)*Math.sin(azimuth),target.y+radius*Math.sin(elevation),target.z+radius*Math.cos(elevation)*Math.cos(azimuth));camera.lookAt(target)}
+updateCamera();
+scene.add(new THREE.HemisphereLight(0xffffff,0x71836b,0.9));
+const sun=new THREE.DirectionalLight(0xfff1d6,1.65);sun.position.set(-8,15,9);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-18;sun.shadow.camera.right=18;sun.shadow.camera.top=18;sun.shadow.camera.bottom=-18;scene.add(sun);
+const mat=(color,roughness=.85)=>new THREE.MeshStandardMaterial({color,roughness});
+const mats={grass:mat('#71966c'),ground:mat('#b7c9a9'),path:mat('#c7bba7'),wall:mat('#ded6c9'),wood:mat('#a8784f'),glass:new THREE.MeshStandardMaterial({color:'#9ecbd7',roughness:.25,metalness:.05,transparent:true,opacity:.78}),dark:mat('#68766b'),leaf:mat('#4c8b5a'),flower:mat('#df9fbd'),white:mat('#fff8eb'),fabric:mat('#d5c4ad'),sofa:mat('#b8cbb8'),metal:mat('#727c7c',.35)};
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(44,44),mat('#6f9866'));ground.rotation.x=-Math.PI/2;ground.position.y=-.13;ground.receiveShadow=true;scene.add(ground);
+const plot=new THREE.Mesh(new THREE.BoxGeometry(13,.15,11),mat('#9fbd88'));plot.position.set(0,-.055,0);plot.receiveShadow=true;plot.castShadow=true;scene.add(plot);
+const grid=new THREE.GridHelper(13,13,0x91a78f,0xc4d1c0);grid.position.y=.03;scene.add(grid);
+const objectsGroup=new THREE.Group();scene.add(objectsGroup);
+const decorGroup=new THREE.Group();scene.add(decorGroup);
+// Empty-lot start: no preplaced trees, flowers, pool, or house.
+// Empty-lot start: the player creates the house from scratch.
+const demoGroup=new THREE.Group();scene.add(demoGroup);
+const roofGroup=new THREE.Group();scene.add(roofGroup);
+const state={tool:'wall',mode:'build',color:'#f1eadf',rot:0,items:[],undo:[],redo:[]};
+function makeItem(data){let g=new THREE.Group();g.position.set(data.x,0,data.z);g.rotation.y=(data.rot||0)*Math.PI/2;g.userData={...data};let c=data.color||state.color;
+ const cm=mat(c), wood=mat('#b78c62'), fabric=mat('#b8cbb8');
+ switch(data.type){
+ case 'wall': box(g,'wall',1,2.35,.14,0,1.175,0,cm);box(g,'wall-cap',1.02,.06,.17,0,2.37,0,mat('#c9c0b3'));box(g,'wall-baseboard',1,.10,.17,0,.07,.0,mat('#b9ad9b'));break;
+ case 'window': box(g,'window-glass',.9,1.0,.06,0,1.35,0,mats.glass);box(g,'window-frame-top',1,.07,.09,0,1.88,0,mats.white);box(g,'window-frame-bottom',1,.07,.09,0,.82,0,mats.white);box(g,'window-frame-left',.07,1.1,.09,-.47,1.35,0,mats.white);box(g,'window-frame-right',.07,1.1,.09,.47,1.35,0,mats.white);break;
+ case 'door': box(g,'door',.85,2.05,.12,0,1.03,0,wood);box(g,'door-handle',.04,.12,.04,.28,1.05,.08,mat('#d8bd77'));break;
+ case 'floor': box(g,'floor-tile',1,.06,1,0,.035,0,cm);break;
+ case 'roof': {let m=new THREE.Mesh(new THREE.ConeGeometry(.9,.65,4),cm);m.position.y=2.5;m.rotation.y=Math.PI/4;m.scale.set(1,1,1.2);m.castShadow=true;g.add(m);break}
+ case 'sofa':
+ box(g,'sofa-frame',1.55,.28,.78,0,.30,0,mat('#8b9d8c'));
+ box(g,'sofa-seat',1.38,.20,.60,0,.50,.02,fabric);
+ box(g,'sofa-back',1.42,.58,.18,0,.76,-.29,mat('#aebfae'));
+ box(g,'sofa-arm-left',.20,.52,.78,-.68,.56,0,mat('#aebfae'));
+ box(g,'sofa-arm-right',.20,.52,.78,.68,.56,0,mat('#aebfae'));
+ for(const x of [-.38,.38]){box(g,'sofa-cushion',.55,.12,.48,x,.64,-.02,mat('#d9d0c0'));box(g,'sofa-back-cushion',.52,.36,.09,x,.86,-.18,mat('#c8d4c5'))}
+ for(const x of [-.58,.58])for(const z of [-.27,.27])box(g,'sofa-leg',.07,.16,.07,x,.08,z,wood);
+ break;
+ case 'bed':
+ box(g,'bed-frame',1.48,.30,1.95,0,.23,0,wood);
+ box(g,'headboard',1.48,.75,.12,0,.60,-.94,mat('#8e674c'));
+ box(g,'mattress',1.35,.22,1.78,0,.48,0,mat('#f3eee5'));
+ box(g,'duvet',1.32,.12,1.05,0,.62,.30,mat('#c4d3c7'));
+ box(g,'folded-cover',1.32,.09,.28,0,.69,.70,mat('#8ea99a'));
+ for(const x of [-.38,.38]){box(g,'pillow',.52,.13,.34,x,.66,-.60,mat('#fffaf1'));box(g,'pillow-seam',.47,.015,.29,x,.73,-.60,mat('#d6d0c6'))}
+ for(const x of [-.60,.60])for(const z of [-.82,.82])box(g,'bed-leg',.08,.15,.08,x,.075,z,wood);
+ break;
+ case 'plant':
+ box(g,'pot',.38,.34,.38,0,.17,0,mat('#b77f60'));
+ box(g,'pot-rim',.42,.06,.42,0,.32,0,mat('#d2a17c'));
+ for(let i=0;i<7;i++){let leaf=new THREE.Mesh(new THREE.SphereGeometry(.14,10,8),mat(['#3e754b','#568b55','#76a568'][i%3]));leaf.scale.set(.7,2.0,.65);leaf.position.set(Math.cos(i*0.9)*.18,.58+Math.sin(i*1.4)*.15,Math.sin(i*0.9)*.18);leaf.rotation.z=Math.cos(i)*.35;leaf.castShadow=true;g.add(leaf)}
+ let stem=new THREE.Mesh(new THREE.CylinderGeometry(.025,.035,.45,8),mat('#5d7847'));stem.position.y=.52;g.add(stem);break;
+ }
+ g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});return g}
+function addItem(type,x,z){const d={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),type,x:Math.round(x),z:Math.round(z),rot:state.rot,color:state.color};const g=makeItem(d);g.userData.itemData=d;objectsGroup.add(g);state.items.push(d);return g}
+function snap(){state.undo.push(JSON.stringify(state.items));if(state.undo.length>40)state.undo.shift();state.redo=[]}
+function restore(arr){for(const o of [...objectsGroup.children])objectsGroup.remove(o);state.items=arr;for(const d of arr)objectsGroup.add(makeItem(d));updateCount()}
+function updateCount(){document.querySelector('#count').textContent=`오브젝트 ${state.items.length}개`}
+function showToast(s){const t=document.querySelector('#toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500)}
+const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();let down=null,dragging=false;
+function setPointer(e){const r=renderer.domElement.getBoundingClientRect();pointer.x=((e.clientX-r.left)/r.width)*2-1;pointer.y=-((e.clientY-r.top)/r.height)*2+1}
+renderer.domElement.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY,az:azimuth,el:elevation};dragging=false;renderer.domElement.setPointerCapture(e.pointerId)});
+renderer.domElement.addEventListener('pointermove',e=>{if(!down)return;let dx=e.clientX-down.x,dy=e.clientY-down.y;if(Math.abs(dx)+Math.abs(dy)>5)dragging=true;if(dragging){azimuth=down.az-dx*.008;elevation=Math.max(.18,Math.min(1.35,down.el+dy*.006));updateCamera()}});
+renderer.domElement.addEventListener('pointerup',e=>{if(!down)return;let wasDrag=dragging;down=null;dragging=false;if(wasDrag)return;setPointer(e);raycaster.setFromCamera(pointer,camera);const hits=raycaster.intersectObject(ground);if(!hits.length)return;let p=hits[0].point;let x=Math.max(-6,Math.min(6,Math.round(p.x))),z=Math.max(-5,Math.min(5,Math.round(p.z)));if(state.tool==='erase'){raycaster.setFromCamera(pointer,camera);const hs=raycaster.intersectObjects(objectsGroup.children,true);if(hs.length){let obj=hs[0].object;while(obj.parent&&obj.parent!==objectsGroup)obj=obj.parent;const d=obj.userData.itemData;if(d){snap();objectsGroup.remove(obj);state.items=state.items.filter(a=>a.id!==d.id);updateCount();showToast('3D 오브젝트를 삭제했습니다')}}return}if(state.tool==='roof'){roofGroup.visible=!roofGroup.visible;showToast(roofGroup.visible?'지붕을 표시했습니다':'지붕을 숨겼습니다');return}snap();addItem(state.tool,x,z);updateCount();showToast(`${({wall:'벽',window:'창문',door:'문',floor:'바닥 타일',sofa:'소파',bed:'침대',plant:'식물'}[state.tool]||state.tool)} 3D 배치 완료`)});
+renderer.domElement.addEventListener('wheel',e=>{e.preventDefault();radius=Math.max(8,Math.min(28,radius+e.deltaY*.015));updateCamera()},{passive:false});
+let pinchDist=0;renderer.domElement.addEventListener('touchmove',e=>{if(e.touches.length===2){e.preventDefault();let d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);if(pinchDist)radius=Math.max(8,Math.min(28,radius+(pinchDist-d)*.025));pinchDist=d;updateCamera()}},{passive:false});renderer.domElement.addEventListener('touchend',()=>pinchDist=0);
+function selectTool(t){state.tool=t;document.querySelectorAll('[data-tool]').forEach(b=>b.classList.toggle('active',b.dataset.tool===t));document.querySelectorAll('[data-item]').forEach(b=>b.classList.toggle('active',b.dataset.item===t));document.querySelector('#hint').textContent=t==='erase'?'삭제할 3D 오브젝트를 눌러주세요. 드래그로 시점을 회전합니다.':t==='roof'?'지붕 도구를 누른 뒤 바닥을 클릭해 지붕 표시를 전환하세요.':`${({wall:'벽',window:'창문',door:'문',floor:'바닥',sofa:'소파',bed:'침대',plant:'식물'}[t]||t)} 선택됨 · 바닥을 눌러 실제 3D 오브젝트 배치`;}
+document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>selectTool(b.dataset.tool));
+const catalogs={build:[['wall','🧱','벽'],['window','🪟','창문'],['door','🚪','문'],['floor','▦','바닥'],['roof','🏠','지붕'],['erase','⌫','삭제']],decorate:[['sofa','🛋️','소파'],['bed','🛏️','침대'],['plant','🪴','식물'],['floor','▦','바닥'],['window','🪟','창문'],['erase','⌫','삭제']],life:[['sofa','🛋️','소파'],['bed','🛏️','침대'],['plant','🪴','식물']]};
+function renderCatalog(){const el=document.querySelector('#catalog');el.innerHTML='';catalogs[state.mode].forEach(([id,emoji,name])=>{let b=document.createElement('button');b.className='item'+(state.tool===id?' active':'');b.dataset.item=id;b.innerHTML=`<span>${emoji}</span><b>${name}</b>`;b.onclick=()=>selectTool(id);el.appendChild(b)});document.querySelector('#catalogTitle').textContent=({build:'건축 카탈로그',decorate:'가구 카탈로그',life:'생활 오브젝트'})[state.mode]}
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{state.mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('active',x===b));document.querySelector('#modeLabel').textContent=({build:'빈 부지 · 건축 모드',decorate:'실시간 3D · 꾸미기 모드',life:'생활 모드 미리보기 · 생활 시뮬레이션은 미구현'})[state.mode];selectTool(catalogs[state.mode][0][0]);renderCatalog()});
+document.querySelector('#rotateCam').onclick=()=>{azimuth+=Math.PI/2;updateCamera();state.rot=(state.rot+1)%4;showToast('카메라와 배치 방향을 회전했습니다')};
+document.querySelector('#undo').onclick=()=>{if(state.undo.length){state.redo.push(JSON.stringify(state.items));restore(JSON.parse(state.undo.pop()));showToast('되돌렸습니다')}};
+document.querySelector('#redo').onclick=()=>{if(state.redo.length){state.undo.push(JSON.stringify(state.items));restore(JSON.parse(state.redo.pop()));showToast('다시 실행했습니다')}};
+document.querySelectorAll('[data-color]').forEach(b=>b.onclick=()=>{state.color=b.dataset.color;showToast('새 오브젝트 색상을 변경했습니다')});
+document.querySelector('#clear').onclick=()=>{if(confirm('추가한 3D 오브젝트를 초기화할까요?')){snap();restore([]);roofGroup.visible=false;showToast('추가 오브젝트를 초기화했습니다')}};
+document.querySelector('#save').onclick=()=>{let data={project:'SDS-3D-001',version:1,items:state.items,roofVisible:roofGroup.visible};let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='SDS-3D-001.json';a.click();URL.revokeObjectURL(a.href);showToast('건축 배치 데이터를 저장했습니다')};
+document.querySelector('#load').onclick=()=>document.querySelector('#file').click();
+document.querySelector('#file').onchange=async e=>{try{let d=JSON.parse(await e.target.files[0].text());if(!Array.isArray(d.items))throw Error();restore(d.items);roofGroup.visible=!!d.roofVisible;showToast('저장한 건축을 불러왔습니다')}catch{showToast('올바른 저장 파일이 아닙니다')}e.target.value=''};
+function resize(){const r=viewport.getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()}
+window.addEventListener('resize',resize);resize();
+document.querySelector('#engineState').textContent='WebGL 실시간 3D · 빈 부지';
+renderCatalog();selectTool('wall');
+function animate(){requestAnimationFrame(animate);renderer.render(scene,camera)}animate();
+</script>
+</body></html>
